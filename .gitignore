@@ -1,0 +1,21 @@
+# Python Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# FastF1 Telemetry Cache (large download cache)
+.fastf1_cache/
+
+# Editor / System temporary files
+.DS_Store
+*.swp
+*.swo
+*~
+.~lock.*#

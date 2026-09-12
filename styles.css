@@ -272,6 +272,27 @@ body {
     color: var(--accent-yellow);
 }
 
+.pill.confirmed {
+    border-color: rgba(225, 6, 0, 0.4);
+    color: #ff6b6b;
+}
+
+.pill.precision {
+    border-color: rgba(0, 210, 190, 0.4);
+    color: var(--accent-blue);
+}
+
+.track-btn.disabled-track {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.track-btn.disabled-track:hover {
+    background: transparent;
+    border-color: var(--border-color);
+    transform: none;
+}
+
 .svg-wrapper {
     width: 90%;
     height: 80%;
@@ -539,20 +560,57 @@ body {
     font-family: var(--font-mono);
 }
 
-.replay-placeholder {
-    background: rgba(0, 0, 0, 0.5);
-    height: 200px;
-    border-radius: 8px;
-    border: 1px dashed var(--border-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    color: var(--text-muted);
+.v-card-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.camera-icon {
-    font-size: 2.5rem;
-    color: rgba(255, 255, 255, 0.2);
+.v-card-badge.badge-gt {
+    background: rgba(225, 6, 0, 0.25);
+    color: #ff4d4d;
+    border: 1px solid rgba(225, 6, 0, 0.5);
+}
+
+.v-card-badge.badge-sub {
+    background: rgba(0, 210, 190, 0.15);
+    color: var(--accent-blue);
+    border: 1px solid rgba(0, 210, 190, 0.3);
+}
+
+.v-breach-depth {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: #ff8787;
+    margin-left: auto;
+}
+
+.forensic-adjudication-box {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--f1-red);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-top: 1rem;
+}
+
+.adjudication-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.adjudication-text {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--text-main);
+    line-height: 1.5;
 }

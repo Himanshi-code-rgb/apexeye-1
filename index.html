@@ -23,32 +23,39 @@
             </div>
             
             <nav class="track-nav">
-                <button class="track-btn active" data-track="monza">
+                <button class="track-btn active" data-track="spielberg">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    <div class="track-info">
+                        <span class="track-name">Red Bull Ring</span>
+                        <span class="track-country">Austria (2023 GP)</span>
+                    </div>
+                </button>
+                <button class="track-btn disabled-track" data-track="monza" title="Phase 2 Uncalibrated">
                     <i class="fa-solid fa-flag-checkered"></i>
                     <div class="track-info">
                         <span class="track-name">Monza</span>
-                        <span class="track-country">Italy</span>
+                        <span class="track-country">Italy (Phase 2)</span>
                     </div>
                 </button>
-                <button class="track-btn" data-track="silverstone">
+                <button class="track-btn disabled-track" data-track="silverstone" title="Phase 2 Uncalibrated">
                     <i class="fa-solid fa-flag-checkered"></i>
                     <div class="track-info">
                         <span class="track-name">Silverstone</span>
-                        <span class="track-country">Great Britain</span>
+                        <span class="track-country">Great Britain (Phase 2)</span>
                     </div>
                 </button>
-                <button class="track-btn" data-track="spa">
+                <button class="track-btn disabled-track" data-track="spa" title="Phase 2 Uncalibrated">
                     <i class="fa-solid fa-flag-checkered"></i>
                     <div class="track-info">
                         <span class="track-name">Spa-Francorchamps</span>
-                        <span class="track-country">Belgium</span>
+                        <span class="track-country">Belgium (Phase 2)</span>
                     </div>
                 </button>
             </nav>
 
             <div class="system-status">
                 <div class="status-indicator"></div>
-                <span>Live Telemetry Active</span>
+                <span>FastF1 Telemetry Live</span>
             </div>
         </aside>
 
@@ -57,26 +64,25 @@
             <header class="top-bar glass-panel">
                 <div class="search-container">
                     <i class="fa-solid fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search driver, turn, or session...">
+                    <input type="text" id="searchInput" placeholder="Search driver (e.g. HAM), corner, or lap...">
                 </div>
                 <div class="filters">
-                    <select id="sessionFilter" class="f1-select">
-                        <option value="all">All Sessions</option>
-                        <option value="FP1">FP1</option>
-                        <option value="FP2">FP2</option>
-                        <option value="FP3">FP3</option>
-                        <option value="Qualifying">Qualifying</option>
-                        <option value="Race">Race</option>
+                    <select id="adjudicationFilter" class="f1-select">
+                        <option value="all">All Spatial Breaches</option>
+                        <option value="gt_only">FIA Confirmed (Deleted Laps)</option>
+                        <option value="sub_threshold">Sub-Threshold Excursions</option>
                     </select>
                 </div>
             </header>
 
             <div class="map-container glass-panel" id="mapContainer">
                 <div class="map-overlay-info">
-                    <h2 id="currentTrackTitle">Autodromo Nazionale Monza</h2>
+                    <h2 id="currentTrackTitle">Red Bull Ring (Spielberg)</h2>
                     <div class="stats-pills">
-                        <div class="pill"><i class="fa-solid fa-car"></i> <span id="totalViolations">0</span> Violations</div>
-                        <div class="pill warning"><i class="fa-solid fa-triangle-exclamation"></i> Turn <span id="worstTurn">-</span> is worst</div>
+                        <div class="pill"><i class="fa-solid fa-car"></i> <span id="totalViolations">0</span> Breaches</div>
+                        <div class="pill warning"><i class="fa-solid fa-triangle-exclamation"></i> Turn <span id="worstTurn">-</span> Hotspot</div>
+                        <div class="pill confirmed"><i class="fa-solid fa-gavel"></i> <span id="confirmedCount">0</span> FIA Deletions</div>
+                        <div class="pill precision"><i class="fa-solid fa-bullseye"></i> <span id="precisionRate">0%</span> FIA Match</div>
                     </div>
                 </div>
                 <!-- Track Map SVG will be injected here -->
@@ -90,7 +96,7 @@
         <aside class="violations-feed glass-panel">
             <div class="feed-header">
                 <h3>Incident Log</h3>
-                <span class="badge">Live</span>
+                <span class="badge">Ground Truth</span>
             </div>
             
             <div class="violations-list" id="violationsList">
@@ -126,14 +132,26 @@
                             <span class="value" id="modalLap"></span>
                         </div>
                         <div class="metric">
-                            <span class="label">Time</span>
-                            <span class="value" id="modalTime"></span>
+                            <span class="label">Speed</span>
+                            <span class="value" id="modalSpeed"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">Breach Depth</span>
+                            <span class="value" id="modalBreach"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">Duration</span>
+                            <span class="value" id="modalDuration"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">AI Confidence</span>
+                            <span class="value" id="modalConfidence"></span>
                         </div>
                     </div>
 
-                    <div class="replay-placeholder">
-                        <div class="camera-icon"><i class="fa-solid fa-video"></i></div>
-                        <p>Awaiting Replay Telemetry Integration (Phase 2)</p>
+                    <div class="forensic-adjudication-box" id="modalAdjudicationBox">
+                        <div class="adjudication-title"><i class="fa-solid fa-scale-balanced"></i> Official FIA Adjudication</div>
+                        <div class="adjudication-text" id="modalFiaReason"></div>
                     </div>
                 </div>
             </div>

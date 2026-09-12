@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Track Limits Dashboard</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Left Sidebar: Track Selection -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <h1>APEX<span>EYE</span></h1>
+                <p>Track Limits Scrutineering</p>
+            </div>
+            
+            <nav class="track-nav">
+                <button class="track-btn active" data-track="monza">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    <div class="track-info">
+                        <span class="track-name">Monza</span>
+                        <span class="track-country">Italy</span>
+                    </div>
+                </button>
+                <button class="track-btn" data-track="silverstone">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    <div class="track-info">
+                        <span class="track-name">Silverstone</span>
+                        <span class="track-country">Great Britain</span>
+                    </div>
+                </button>
+                <button class="track-btn" data-track="spa">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    <div class="track-info">
+                        <span class="track-name">Spa-Francorchamps</span>
+                        <span class="track-country">Belgium</span>
+                    </div>
+                </button>
+            </nav>
+
+            <div class="system-status">
+                <div class="status-indicator"></div>
+                <span>Live Telemetry Active</span>
+            </div>
+        </aside>
+
+        <!-- Main Area: Map Visualization -->
+        <main class="main-content">
+            <header class="top-bar glass-panel">
+                <div class="search-container">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search driver, turn, or session...">
+                </div>
+                <div class="filters">
+                    <select id="sessionFilter" class="f1-select">
+                        <option value="all">All Sessions</option>
+                        <option value="FP1">FP1</option>
+                        <option value="FP2">FP2</option>
+                        <option value="FP3">FP3</option>
+                        <option value="Qualifying">Qualifying</option>
+                        <option value="Race">Race</option>
+                    </select>
+                </div>
+            </header>
+
+            <div class="map-container glass-panel" id="mapContainer">
+                <div class="map-overlay-info">
+                    <h2 id="currentTrackTitle">Autodromo Nazionale Monza</h2>
+                    <div class="stats-pills">
+                        <div class="pill"><i class="fa-solid fa-car"></i> <span id="totalViolations">0</span> Violations</div>
+                        <div class="pill warning"><i class="fa-solid fa-triangle-exclamation"></i> Turn <span id="worstTurn">-</span> is worst</div>
+                    </div>
+                </div>
+                <!-- Track Map SVG will be injected here -->
+                <div id="svgWrapper" class="svg-wrapper">
+                    <div class="loader">Loading Track...</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar: Violations Feed -->
+        <aside class="violations-feed glass-panel">
+            <div class="feed-header">
+                <h3>Incident Log</h3>
+                <span class="badge">Live</span>
+            </div>
+            
+            <div class="violations-list" id="violationsList">
+                <!-- Violation Cards injected here -->
+            </div>
+        </aside>
+
+        <!-- Detail Modal (Hidden by default) -->
+        <div id="incidentModal" class="modal-overlay hidden">
+            <div class="modal-content glass-panel">
+                <button class="close-btn" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
+                <div class="modal-header">
+                    <h2 class="incident-title">Violation #<span id="modalId"></span></h2>
+                    <span class="session-badge" id="modalSession"></span>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="driver-info-large">
+                        <div class="driver-number" id="modalDriverNum"></div>
+                        <div class="driver-details">
+                            <div class="driver-name" id="modalDriverName"></div>
+                            <div class="driver-team" id="modalTeam"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="incident-metrics">
+                        <div class="metric">
+                            <span class="label">Turn</span>
+                            <span class="value" id="modalTurn"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">Lap</span>
+                            <span class="value" id="modalLap"></span>
+                        </div>
+                        <div class="metric">
+                            <span class="label">Time</span>
+                            <span class="value" id="modalTime"></span>
+                        </div>
+                    </div>
+
+                    <div class="replay-placeholder">
+                        <div class="camera-icon"><i class="fa-solid fa-video"></i></div>
+                        <p>Awaiting Replay Telemetry Integration (Phase 2)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

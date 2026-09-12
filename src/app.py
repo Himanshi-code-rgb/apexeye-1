@@ -1,9 +1,11 @@
 """
-ApexEye Flask REST API Backend (Phase 1)
+ApexEye Flask REST API Backend (Phase 1 + Vision)
 Serves circuit geometry, searchable forensic track limits violations,
-and high-frequency lap telemetry with out-of-bounds containment flags.
+high-frequency lap telemetry with out-of-bounds containment flags,
+and the /api/vision/* steward incident endpoints (Iteration 8).
 """
 
+import json
 from pathlib import Path
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
@@ -11,6 +13,9 @@ from flask_cors import CORS
 from src.spatial import SpielbergTrackGeometry
 from src.db import ViolationsDatabase
 from src.ingestion import load_session, get_lap_telemetry
+from src import vision_store
+from src.vision import evidence as vision_evidence
+from src.vision.incidents import PRIORITY_RANK
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
@@ -185,6 +190,159 @@ def get_lap_telemetry_stream(driver: str, lap_number: int):
         })
     except Exception as e:
         return jsonify({"error": f"Failed to retrieve telemetry for {driver} Lap {lap_number}: {str(e)}"}), 400
+
+
+# ---------------------------------------------------------------------------
+# Vision incident endpoints (Iteration 8) - plan section 24
+#
+# The vision store (src/vision_store.py) is the source of truth for detected
+# incidents and steward decisions; frozen evidence packages live on disk under
+# data/incidents/<incident_id>/ (built by src/vision/evidence.py). Both are
+# read through module attributes at request time so tests can redirect them.
+# ---------------------------------------------------------------------------
+
+
+def _vision_sort_key(incident: dict):
+    """Priority-queue ordering: mirrors `rank_incidents` in src/vision/incidents.py."""
+    return (
+        PRIORITY_RANK.get(str(incident.get("priority", "CLEARED")), 99),
+        -float(incident.get("peak_breach_cm") or 0.0),
+        -float(incident.get("confidence") or 0.0),
+    )
+
+
+def _load_package_json(package_dir: Path, name: str):
+    """Reads one JSON file of an evidence package, or None when absent."""
+    path = package_dir / name
+    if not path.exists():
+        return None
+    with open(path, "r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+@app.route("/api/vision/incidents", methods=["GET"])
+def get_vision_incidents():
+    """
+    Steward priority queue of detected vision incidents, ranked like
+    `rank_incidents`: CRITICAL first, then breach depth, then confidence.
+
+    Query Params:
+        driver (str): 3-letter driver code filter (e.g. HAM)
+        priority (str): CRITICAL | BORDERLINE | CLEARED
+    """
+    driver = request.args.get("driver")
+    priority = request.args.get("priority")
+
+    incidents = vision_store.load_incidents()
+    if driver:
+        wanted = driver.upper()
+        incidents = [i for i in incidents if str(i.get("driver", "")).upper() == wanted]
+    if priority:
+        wanted = priority.upper()
+        incidents = [i for i in incidents if str(i.get("priority", "")).upper() == wanted]
+
+    incidents = sorted(incidents, key=_vision_sort_key)
+    decisions = vision_store.decisions_by_incident()
+
+    payload = []
+    for incident in incidents:
+        item = dict(incident)
+        incident_id = str(incident.get("incident_id", ""))
+        item["steward_decision"] = decisions.get(incident_id)
+        package_dir = Path(vision_evidence.INCIDENTS_DIR) / incident_id
+        item["has_evidence"] = (package_dir / "evidence.json").exists()
+        payload.append(item)
+
+    return jsonify({"count": len(payload), "incidents": payload})
+
+
+@app.route("/api/vision/incident/<incident_id>", methods=["GET"])
+def get_vision_incident(incident_id):
+    """Full incident record including the latest steward decision."""
+    incident = vision_store.get_incident(incident_id)
+    if incident is None:
+        return jsonify({"error": f"Incident '{incident_id}' not found."}), 404
+    payload = dict(incident)
+    payload["steward_decision"] = vision_store.decisions_by_incident().get(incident_id)
+    return jsonify(payload)
+
+
+@app.route("/api/vision/incident/<incident_id>/frames", methods=["GET"])
+def get_vision_incident_frames(incident_id):
+    """
+    Per-frame view of the incident. The clustering stores only the run summary
+    (start/peak/end); unless the pipeline persisted explicit per-frame records,
+    the frame list is derived from the consecutive range - clustering
+    guarantees contiguity - with the peak frame flagged.
+    """
+    incident = vision_store.get_incident(incident_id)
+    if incident is None:
+        return jsonify({"error": f"Incident '{incident_id}' not found."}), 404
+
+    stored = incident.get("frames")
+    if isinstance(stored, list) and stored:
+        frames = stored
+    else:
+        peak = int(incident.get("peak_frame") or 0)
+        start = int(incident.get("start_frame") or 0)
+        end = int(incident.get("end_frame") or 0)
+        frames = [{"frame": n, "is_peak": n == peak} for n in range(start, end + 1)]
+
+    return jsonify({
+        "incident_id": incident_id,
+        "frame_count": int(incident.get("frame_count") or len(frames)),
+        "peak_frame": incident.get("peak_frame"),
+        "frames": frames,
+    })
+
+
+@app.route("/api/vision/incident/<incident_id>/evidence", methods=["GET"])
+def get_vision_incident_evidence(incident_id):
+    """
+    Serves the frozen forensic package written by `build_evidence_package`
+    (metadata, measurements and the rendered-artifact index) so a steward can
+    reconstruct WHY the system made its recommendation.
+    """
+    package_dir = Path(vision_evidence.INCIDENTS_DIR) / incident_id
+    if not (package_dir / "metadata.json").exists():
+        return jsonify({"error": f"No evidence package for incident '{incident_id}'."}), 404
+
+    return jsonify({
+        "incident_id": incident_id,
+        "package_dir": str(package_dir),
+        "metadata": _load_package_json(package_dir, "metadata.json"),
+        "measurements": _load_package_json(package_dir, "measurements.json"),
+        "evidence": _load_package_json(package_dir, "evidence.json"),
+    })
+
+
+@app.route("/api/vision/incident/<incident_id>/decision", methods=["POST"])
+def post_vision_incident_decision(incident_id):
+    """
+    Records a steward adjudication for an incident.
+
+    Body:
+        decision (str): CONFIRM_DELETION | ISSUE_WARNING | DISMISS
+        steward (str): adjudicator name/id (defaults to UNKNOWN)
+        notes (str): optional rationale
+    """
+    if vision_store.get_incident(incident_id) is None:
+        return jsonify({"error": f"Incident '{incident_id}' not found."}), 404
+
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        body = {}
+    try:
+        record = vision_store.record_decision(
+            incident_id=incident_id,
+            decision=str(body.get("decision", "")),
+            steward=str(body.get("steward", "")),
+            notes=str(body.get("notes", "")),
+        )
+    except vision_store.VisionStoreError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    return jsonify({"incident_id": incident_id, "recorded": record}), 201
 
 
 @app.route("/", methods=["GET"])

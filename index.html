@@ -3,158 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F1 Track Limits Dashboard</title>
-    <!-- Modern Typography -->
+    <title>ApexEye — Steward Scrutineering Workstation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Left Sidebar: Track Selection -->
-        <aside class="sidebar glass-panel">
-            <div class="sidebar-header">
+    <div class="workstation">
+        <!-- Top HUD bar -->
+        <header class="hud-top glass-panel">
+            <div class="brand">
                 <h1>APEX<span>EYE</span></h1>
-                <p>Track Limits Scrutineering</p>
+                <span class="hud-sub">Steward Scrutineering Workstation</span>
             </div>
-            
-            <nav class="track-nav">
-                <button class="track-btn active" data-track="spielberg">
-                    <i class="fa-solid fa-flag-checkered"></i>
-                    <div class="track-info">
-                        <span class="track-name">Red Bull Ring</span>
-                        <span class="track-country">Austria (2023 GP)</span>
-                    </div>
-                </button>
-                <button class="track-btn disabled-track" data-track="monza" title="Phase 2 Uncalibrated">
-                    <i class="fa-solid fa-flag-checkered"></i>
-                    <div class="track-info">
-                        <span class="track-name">Monza</span>
-                        <span class="track-country">Italy (Phase 2)</span>
-                    </div>
-                </button>
-                <button class="track-btn disabled-track" data-track="silverstone" title="Phase 2 Uncalibrated">
-                    <i class="fa-solid fa-flag-checkered"></i>
-                    <div class="track-info">
-                        <span class="track-name">Silverstone</span>
-                        <span class="track-country">Great Britain (Phase 2)</span>
-                    </div>
-                </button>
-                <button class="track-btn disabled-track" data-track="spa" title="Phase 2 Uncalibrated">
-                    <i class="fa-solid fa-flag-checkered"></i>
-                    <div class="track-info">
-                        <span class="track-name">Spa-Francorchamps</span>
-                        <span class="track-country">Belgium (Phase 2)</span>
-                    </div>
-                </button>
-            </nav>
-
-            <div class="system-status">
-                <div class="status-indicator"></div>
-                <span>FastF1 Telemetry Live</span>
+            <div class="hud-session">
+                <i class="fa-solid fa-flag-checkered"></i>
+                2023 Austrian GP · Red Bull Ring · SAM Vision
             </div>
-        </aside>
+            <div class="hud-status">
+                <span class="status-indicator" id="storeIndicator"></span>
+                <span id="storeStatus">Vision store: connecting…</span>
+            </div>
+        </header>
 
-        <!-- Main Area: Map Visualization -->
-        <main class="main-content">
-            <header class="top-bar glass-panel">
-                <div class="search-container">
-                    <i class="fa-solid fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search driver (e.g. HAM), corner, or lap...">
+        <div class="hud-grid">
+            <!-- LEFT: Steward Priority Triage Queue -->
+            <aside class="queue-panel glass-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-list-check"></i> Priority Triage Queue</h3>
+                    <span class="count-badge" id="queueCount">0</span>
                 </div>
-                <div class="filters">
-                    <select id="adjudicationFilter" class="f1-select">
-                        <option value="all">All Spatial Breaches</option>
-                        <option value="gt_only">FIA Confirmed (Deleted Laps)</option>
-                        <option value="sub_threshold">Sub-Threshold Excursions</option>
-                    </select>
+                <div class="queue-tabs" id="queueTabs">
+                    <button class="queue-tab active" data-filter="ALL">All</button>
+                    <button class="queue-tab" data-filter="CRITICAL">Critical</button>
+                    <button class="queue-tab" data-filter="BORDERLINE">Borderline</button>
+                    <button class="queue-tab" data-filter="CLEARED">Cleared</button>
                 </div>
-            </header>
+                <div class="queue-list" id="queueList">
+                    <div class="queue-empty">No incidents in the vision store.</div>
+                </div>
+            </aside>
 
-            <div class="map-container glass-panel" id="mapContainer">
-                <div class="map-overlay-info">
-                    <h2 id="currentTrackTitle">Red Bull Ring (Spielberg)</h2>
-                    <div class="stats-pills">
-                        <div class="pill"><i class="fa-solid fa-car"></i> <span id="totalViolations">0</span> Breaches</div>
-                        <div class="pill warning"><i class="fa-solid fa-triangle-exclamation"></i> Turn <span id="worstTurn">-</span> Hotspot</div>
-                        <div class="pill confirmed"><i class="fa-solid fa-gavel"></i> <span id="confirmedCount">0</span> FIA Deletions</div>
-                        <div class="pill precision"><i class="fa-solid fa-bullseye"></i> <span id="precisionRate">0%</span> FIA Match</div>
+            <!-- CENTER: Forensic Video & Keyframe Scrutineer Deck -->
+            <main class="deck-panel glass-panel">
+                <div class="deck-header">
+                    <div class="deck-identity">
+                        <div class="driver-chip" id="deckDriverNum">--</div>
+                        <div class="deck-id-text">
+                            <div class="deck-corner" id="deckCorner">No incident selected</div>
+                            <div class="deck-meta" id="deckMeta">Select an incident from the queue</div>
+                        </div>
+                    </div>
+                    <div class="deck-verdict" id="deckVerdict">--</div>
+                </div>
+
+                <div class="canvas-stage" id="canvasStage">
+                    <canvas id="scrutineerCanvas" width="960" height="540"></canvas>
+                    <div class="hawk-loupe hidden" id="hawkLoupe">
+                        <canvas id="loupeCanvas" width="176" height="176"></canvas>
+                        <div class="loupe-label" id="loupeLabel">HAWK-EYE</div>
+                    </div>
+                    <div class="deck-empty" id="deckEmpty">
+                        <i class="fa-solid fa-video"></i>
+                        <p>Forensic deck idle</p>
                     </div>
                 </div>
-                <!-- Track Map SVG will be injected here -->
-                <div id="svgWrapper" class="svg-wrapper">
-                    <div class="loader">Loading Track...</div>
-                </div>
-            </div>
-        </main>
 
-        <!-- Right Sidebar: Violations Feed -->
-        <aside class="violations-feed glass-panel">
-            <div class="feed-header">
-                <h3>Incident Log</h3>
-                <span class="badge">Ground Truth</span>
-            </div>
-            
-            <div class="violations-list" id="violationsList">
-                <!-- Violation Cards injected here -->
-            </div>
-        </aside>
-
-        <!-- Detail Modal (Hidden by default) -->
-        <div id="incidentModal" class="modal-overlay hidden">
-            <div class="modal-content glass-panel">
-                <button class="close-btn" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
-                <div class="modal-header">
-                    <h2 class="incident-title">Violation #<span id="modalId"></span></h2>
-                    <span class="session-badge" id="modalSession"></span>
+                <div class="scrubber-row">
+                    <button class="ctl-btn" id="stepBackBtn" title="Step back one frame"><i class="fa-solid fa-backward-step"></i></button>
+                    <button class="ctl-btn" id="playBtn" title="Play / pause frame scrub"><i class="fa-solid fa-play"></i></button>
+                    <button class="ctl-btn" id="stepFwdBtn" title="Step forward one frame"><i class="fa-solid fa-forward-step"></i></button>
+                    <input type="range" id="frameSlider" min="0" max="0" value="0" step="1">
+                    <div class="timecode" id="timecode">FRAME --</div>
                 </div>
-                
-                <div class="modal-body">
-                    <div class="driver-info-large">
-                        <div class="driver-number" id="modalDriverNum"></div>
-                        <div class="driver-details">
-                            <div class="driver-name" id="modalDriverName"></div>
-                            <div class="driver-team" id="modalTeam"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="incident-metrics">
-                        <div class="metric">
-                            <span class="label">Turn</span>
-                            <span class="value" id="modalTurn"></span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">Lap</span>
-                            <span class="value" id="modalLap"></span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">Speed</span>
-                            <span class="value" id="modalSpeed"></span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">Breach Depth</span>
-                            <span class="value" id="modalBreach"></span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">Duration</span>
-                            <span class="value" id="modalDuration"></span>
-                        </div>
-                        <div class="metric">
-                            <span class="label">AI Confidence</span>
-                            <span class="value" id="modalConfidence"></span>
-                        </div>
-                    </div>
 
-                    <div class="forensic-adjudication-box" id="modalAdjudicationBox">
-                        <div class="adjudication-title"><i class="fa-solid fa-scale-balanced"></i> Official FIA Adjudication</div>
-                        <div class="adjudication-text" id="modalFiaReason"></div>
-                    </div>
+                <div class="layer-controls">
+                    <label class="layer-toggle"><input type="checkbox" id="layerKeyframe" checked> Keyframe</label>
+                    <label class="layer-toggle"><input type="checkbox" id="layerLine" checked> White line</label>
+                    <label class="layer-toggle"><input type="checkbox" id="layerTires" checked> Tire patches</label>
+                    <label class="layer-toggle"><input type="checkbox" id="layerBird"> Bird's-eye</label>
+                    <label class="layer-toggle"><input type="checkbox" id="layerLoupe" checked> Hawk-Eye loupe</label>
+                    <label class="opacity-ctl">Mask opacity
+                        <input type="range" id="maskOpacity" min="10" max="100" value="55">
+                    </label>
                 </div>
-            </div>
+            </main>
+
+            <!-- RIGHT: Official Stewarding Action & Case Dossier -->
+            <aside class="dossier-panel glass-panel">
+                <div class="panel-header">
+                    <h3><i class="fa-solid fa-folder-open"></i> Case Dossier</h3>
+                    <span class="badge" id="evidenceBadge">No package</span>
+                </div>
+
+                <div class="readouts">
+                    <div class="metric"><span class="label">Peak Excursion</span><span class="value" id="roBreach">--</span></div>
+                    <div class="metric"><span class="label">Optical Confidence</span><span class="value" id="roConfidence">--</span></div>
+                    <div class="metric"><span class="label">Four Wheels Off</span><span class="value" id="roFourOff">--</span></div>
+                    <div class="metric"><span class="label">Frames Sampled</span><span class="value" id="roFrames">--</span></div>
+                    <div class="metric"><span class="label">Priority</span><span class="value" id="roPriority">--</span></div>
+                </div>
+                <div class="reason-box" id="roReason">--</div>
+
+                <div class="birdseye-box" id="birdseyeBox">
+                    <div class="box-title">Bird's-Eye (schematic)</div>
+                    <canvas id="birdseyeCanvas" width="260" height="170"></canvas>
+                    <div class="box-note">From per-wheel measurements · true projection pending</div>
+                </div>
+
+                <div class="strikes-box">
+                    <div class="box-title">Driver Strike Tracker</div>
+                    <div id="strikesList" class="strikes-list"><div class="box-note">No adjudications yet.</div></div>
+                </div>
+
+                <div class="actions-box">
+                    <div class="box-title">Official Stewarding Action</div>
+                    <div class="steward-row">
+                        <input type="text" id="stewardId" value="STW-01" spellcheck="false" title="Steward id">
+                        <input type="text" id="decisionNotes" placeholder="Notes (rationale)…" spellcheck="false">
+                    </div>
+                    <button class="action-btn action-delete" id="btnDelete"><i class="fa-solid fa-flag"></i> Confirm Lap Deletion</button>
+                    <button class="action-btn action-warning" id="btnWarning"><i class="fa-solid fa-triangle-exclamation"></i> Issue Black &amp; White Warning</button>
+                    <button class="action-btn action-dismiss" id="btnDismiss"><i class="fa-solid fa-circle-check"></i> Dismiss / No Infraction</button>
+                    <div class="decision-status" id="decisionStatus">No adjudication recorded</div>
+                </div>
+
+                <button class="export-btn" id="btnExport"><i class="fa-solid fa-file-export"></i> Export FIA Decision Document</button>
+            </aside>
         </div>
     </div>
 

@@ -1,0 +1,50 @@
+{
+  "incident_id": "VIS-NOR-L20-Turn9-0",
+  "driver": "NOR",
+  "lap": 20,
+  "corner": "Turn 9",
+  "start_frame": 300,
+  "peak_frame": 302,
+  "end_frame": 303,
+  "peak_breach_cm": 1.2,
+  "priority": "BORDERLINE",
+  "confidence": 0.72,
+  "frame_count": 4,
+  "verdict": {
+    "four_wheels_off": true,
+    "peak_excursion_cm": 1.2,
+    "priority": "BORDERLINE",
+    "confidence": 0.9,
+    "reason": "Tire edge near the line boundary; steward review advised.",
+    "wheels": {
+      "FL": {
+        "wheel": "FL",
+        "overlapping": false,
+        "overlap_area_cm2": 0.0,
+        "gap_cm": 1.2,
+        "signed_excursion_cm": 1.2
+      },
+      "FR": {
+        "wheel": "FR",
+        "overlapping": false,
+        "overlap_area_cm2": 0.0,
+        "gap_cm": 1.2,
+        "signed_excursion_cm": 1.2
+      },
+      "RL": {
+        "wheel": "RL",
+        "overlapping": false,
+        "overlap_area_cm2": 0.0,
+        "gap_cm": 1.2,
+        "signed_excursion_cm": 1.2
+      },
+      "RR": {
+        "wheel": "RR",
+        "overlapping": false,
+        "overlap_area_cm2": 0.0,
+        "gap_cm": 1.2,
+        "signed_excursion_cm": 1.2
+      }
+    }
+  }
+}

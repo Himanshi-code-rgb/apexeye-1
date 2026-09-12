@@ -1,0 +1,288 @@
+[
+  {
+    "incident_id": "VIS-VER-L8-Turn10-0",
+    "driver": "VER",
+    "lap": 8,
+    "corner": "Turn 10",
+    "start_frame": 210,
+    "peak_frame": 213,
+    "end_frame": 215,
+    "peak_breach_cm": 10.4,
+    "priority": "CRITICAL",
+    "confidence": 0.97,
+    "frame_count": 6,
+    "frames": [
+      {
+        "frame": 210,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 3.12,
+        "is_peak": false,
+        "confidence": 0.97
+      },
+      {
+        "frame": 211,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 4.85,
+        "is_peak": false,
+        "confidence": 0.97
+      },
+      {
+        "frame": 212,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 6.59,
+        "is_peak": false,
+        "confidence": 0.97
+      },
+      {
+        "frame": 213,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 10.4,
+        "is_peak": true,
+        "confidence": 0.97
+      },
+      {
+        "frame": 214,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 9.36,
+        "is_peak": false,
+        "confidence": 0.97
+      },
+      {
+        "frame": 215,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 9.36,
+        "is_peak": false,
+        "confidence": 0.97
+      }
+    ]
+  },
+  {
+    "incident_id": "VIS-HAM-L14-Turn10-0",
+    "driver": "HAM",
+    "lap": 14,
+    "corner": "Turn 10",
+    "start_frame": 101,
+    "peak_frame": 103,
+    "end_frame": 104,
+    "peak_breach_cm": 9.1,
+    "priority": "CRITICAL",
+    "confidence": 0.95,
+    "frame_count": 4,
+    "frames": [
+      {
+        "frame": 101,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 2.73,
+        "is_peak": false,
+        "confidence": 0.95
+      },
+      {
+        "frame": 102,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 5.0,
+        "is_peak": false,
+        "confidence": 0.95
+      },
+      {
+        "frame": 103,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 9.1,
+        "is_peak": true,
+        "confidence": 0.95
+      },
+      {
+        "frame": 104,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 8.19,
+        "is_peak": false,
+        "confidence": 0.95
+      }
+    ]
+  },
+  {
+    "incident_id": "VIS-ALO-L33-Turn9-0",
+    "driver": "ALO",
+    "lap": 33,
+    "corner": "Turn 9",
+    "start_frame": 512,
+    "peak_frame": 514,
+    "end_frame": 516,
+    "peak_breach_cm": 8.6,
+    "priority": "CRITICAL",
+    "confidence": 0.9,
+    "frame_count": 5,
+    "frames": [
+      {
+        "frame": 512,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 2.58,
+        "is_peak": false,
+        "confidence": 0.9
+      },
+      {
+        "frame": 513,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 4.73,
+        "is_peak": false,
+        "confidence": 0.9
+      },
+      {
+        "frame": 514,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 8.6,
+        "is_peak": true,
+        "confidence": 0.9
+      },
+      {
+        "frame": 515,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 7.74,
+        "is_peak": false,
+        "confidence": 0.9
+      },
+      {
+        "frame": 516,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 7.74,
+        "is_peak": false,
+        "confidence": 0.9
+      }
+    ]
+  },
+  {
+    "incident_id": "VIS-NOR-L20-Turn9-0",
+    "driver": "NOR",
+    "lap": 20,
+    "corner": "Turn 9",
+    "start_frame": 300,
+    "peak_frame": 302,
+    "end_frame": 303,
+    "peak_breach_cm": 1.2,
+    "priority": "BORDERLINE",
+    "confidence": 0.72,
+    "frame_count": 4,
+    "frames": [
+      {
+        "frame": 300,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 0.36,
+        "is_peak": false,
+        "confidence": 0.72
+      },
+      {
+        "frame": 301,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 0.66,
+        "is_peak": false,
+        "confidence": 0.72
+      },
+      {
+        "frame": 302,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 1.2,
+        "is_peak": true,
+        "confidence": 0.72
+      },
+      {
+        "frame": 303,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 1.08,
+        "is_peak": false,
+        "confidence": 0.72
+      }
+    ]
+  },
+  {
+    "incident_id": "VIS-GAS-L41-Turn10-0",
+    "driver": "GAS",
+    "lap": 41,
+    "corner": "Turn 10",
+    "start_frame": 620,
+    "peak_frame": 622,
+    "end_frame": 623,
+    "peak_breach_cm": 0.8,
+    "priority": "BORDERLINE",
+    "confidence": 0.68,
+    "frame_count": 4,
+    "frames": [
+      {
+        "frame": 620,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 0.24,
+        "is_peak": false,
+        "confidence": 0.68
+      },
+      {
+        "frame": 621,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 0.44,
+        "is_peak": false,
+        "confidence": 0.68
+      },
+      {
+        "frame": 622,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 0.8,
+        "is_peak": true,
+        "confidence": 0.68
+      },
+      {
+        "frame": 623,
+        "four_wheels_off": true,
+        "signed_excursion_cm": 0.72,
+        "is_peak": false,
+        "confidence": 0.68
+      }
+    ]
+  },
+  {
+    "incident_id": "VIS-LEC-L5-Turn9-0",
+    "driver": "LEC",
+    "lap": 5,
+    "corner": "Turn 9",
+    "start_frame": 740,
+    "peak_frame": 742,
+    "end_frame": 744,
+    "peak_breach_cm": -0.4,
+    "priority": "CLEARED",
+    "confidence": 0.81,
+    "frame_count": 5,
+    "frames": [
+      {
+        "frame": 740,
+        "four_wheels_off": false,
+        "signed_excursion_cm": -0.4,
+        "is_peak": false,
+        "confidence": 0.81
+      },
+      {
+        "frame": 741,
+        "four_wheels_off": false,
+        "signed_excursion_cm": -0.4,
+        "is_peak": false,
+        "confidence": 0.81
+      },
+      {
+        "frame": 742,
+        "four_wheels_off": false,
+        "signed_excursion_cm": -0.4,
+        "is_peak": true,
+        "confidence": 0.81
+      },
+      {
+        "frame": 743,
+        "four_wheels_off": false,
+        "signed_excursion_cm": -0.4,
+        "is_peak": false,
+        "confidence": 0.81
+      },
+      {
+        "frame": 744,
+        "four_wheels_off": false,
+        "signed_excursion_cm": -0.4,
+        "is_peak": false,
+        "confidence": 0.81
+      }
+    ]
+  }
+]

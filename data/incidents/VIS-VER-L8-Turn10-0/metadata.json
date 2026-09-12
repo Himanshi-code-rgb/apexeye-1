@@ -1,0 +1,50 @@
+{
+  "incident_id": "VIS-VER-L8-Turn10-0",
+  "driver": "VER",
+  "lap": 8,
+  "corner": "Turn 10",
+  "start_frame": 210,
+  "peak_frame": 213,
+  "end_frame": 215,
+  "peak_breach_cm": 10.4,
+  "priority": "CRITICAL",
+  "confidence": 0.97,
+  "frame_count": 6,
+  "verdict": {
+    "four_wheels_off": true,
+    "peak_excursion_cm": 10.4,
+    "priority": "CRITICAL",
+    "confidence": 0.9,
+    "reason": "All four wheels clearly beyond the white line.",
+    "wheels": {
+      "FL": {
+        "wheel": "FL",
+        "overlapping": false,
+        "overlap_area_cm2": 0.0,
+        "gap_cm": 10.4,
+        "signed_excursion_cm": 10.4
+      },
+      "FR": {
+        "wheel": "FR",
+        "overlapping": false,
+        "overlap_area_cm2": 0.0,
+        "gap_cm": 10.4,
+        "signed_excursion_cm": 10.4
+      },
+      "RL": {
+        "wheel": "RL",
+        "overlapping": false,
+        "overlap_area_cm2": 0.0,
+        "gap_cm": 10.4,
+        "signed_excursion_cm": 10.4
+      },
+      "RR": {
+        "wheel": "RR",
+        "overlapping": false,
+        "overlap_area_cm2": 0.0,
+        "gap_cm": 10.4,
+        "signed_excursion_cm": 10.4
+      }
+    }
+  }
+}

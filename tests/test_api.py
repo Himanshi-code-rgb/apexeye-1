@@ -93,22 +93,25 @@ class TestApexEyePhase1(unittest.TestCase):
         self.assertIn("y", sample)
 
     def test_08_dashboard_static_serving(self):
-        # Verify index.html is served
+        # The steward workstation (Iteration 9) is served at /
         res_idx = self.client.get("/")
         self.assertEqual(res_idx.status_code, 200)
-        self.assertIn(b"Red Bull Ring (Spielberg)", res_idx.data)
-        self.assertIn(b"adjudicationFilter", res_idx.data)
+        self.assertIn(b"Steward Scrutineering Workstation", res_idx.data)
+        self.assertIn(b"Priority Triage Queue", res_idx.data)
+        self.assertIn(b"Confirm Lap Deletion", res_idx.data)
 
-        # Verify app.js is served and contains API client logic
+        # app.js consumes the vision API (DEC-012)
         res_js = self.client.get("/app.js")
         self.assertEqual(res_js.status_code, 200)
-        self.assertIn(b"loadViolations", res_js.data)
+        self.assertIn(b"/api/vision/incidents", res_js.data)
+        self.assertIn(b"recordDecision", res_js.data)
         self.assertIn(b"F1_DRIVERS", res_js.data)
 
-        # Verify styles.css is served
+        # styles.css ships the steward HUD
         res_css = self.client.get("/styles.css")
         self.assertEqual(res_css.status_code, 200)
-        self.assertIn(b".forensic-adjudication-box", res_css.data)
+        self.assertIn(b".priority-pill", res_css.data)
+        self.assertIn(b".action-delete", res_css.data)
 
 
 if __name__ == "__main__":

@@ -101,5 +101,67 @@
 - **Consequences**: Architecture centers around `src/vision/` (homography, SAM segmenter, optical scrutineer, benchmark generator) and a re-engineered frontend dashboard for manual review.
 - **Future Considerations**: Connect to live multi-camera RTSP feeds and deploy ONNX models on edge devices.
 
+---
+
+## DEC-009: Colab-Hosted SAM Service Behind a Cloudflare Tunnel
+- **Date**: 2026-09-13
+- **Decision**: Run SAM in a Google Colab GPU session exposed as a small FastAPI service through a Cloudflare quick tunnel. The local repository never loads the model; it calls the service over HTTP using `src/vision/sam_client.py`.
+- **Context**: SAM 3.1 requires Python >=3.12, PyTorch >=2.7, CUDA >=12.6, and gated weights, which is heavy for the local Intel/RTX 2060 laptop. The local pipeline only needs structured mask outputs.
+- **Alternatives Considered**: Manual download/upload of outputs; Google Drive mount + rclone sync; a git artifact branch; a paid hosted inference API.
+- **Chosen Decision**: Colab runs `notebooks/sam_service.ipynb` (FastAPI + Cloudflare tunnel); the local client POSTs a base64 PNG plus prompts and receives RLE-encoded masks. Connection details come from `SAM_API_URL` / `SAM_API_KEY` env vars.
+- **Why**: Zero manual artifact transfer after session start; the model backend is fully swappable (SAM 2.1 today, SAM 3.1 when gated access is granted); the repo stays lightweight.
+- **Consequences**: The service is ephemeral (tunnel URL changes per session, session can disconnect); masks travel as RLE so no Pillow/torch/OpenCV is needed locally; a shared `X-API-Key` guards the public endpoint; a down service degrades to an explicit `SamServiceError`, never a wrong verdict.
+- **Future Considerations**: Named Cloudflare tunnel with a persistent token for stability; batch endpoints; TrueNAS/edge ONNX deployment.
+
+---
+
+## DEC-010: SAM 2.1 as the Default Model, SAM 3.1 as Upgrade Path
+- **Date**: 2026-09-13
+- **Decision**: Default the Colab service to **SAM 2.1 Hiera Tiny** (Apache-2.0) and keep SAM 3.1 as a drop-in upgrade once Hugging Face gated access is granted.
+- **Context**: Research confirmed SAM 3 / SAM 3.1 are public but gated behind a custom "SAM License" and require `hf auth login`; SAM 2.1 is Apache-2.0, downloadable without login, and runs comfortably on a Colab T4.
+- **Alternatives Considered**: Blocking the vision path until SAM 3.1 access is granted; using a paid hosted endpoint.
+- **Chosen Decision**: Model-agnostic service protocol (`/segment`) with a `MODEL_VARIANT` switch in the notebook; SAM 2.1 Tiny ships as the working default.
+- **Why**: Keeps the pipeline runnable and demonstrable today while preserving the SAM 3.1 (text-prompt + object multiplexing) path for when access is available.
+- **Consequences**: Text prompts are rejected by SAM 2.1 and require SAM 3; the client interface is identical for both.
+- **Future Considerations**: Re-benchmark tire/contact-patch quality once SAM 3.1 is available, since its text prompting may reduce the need for hand-drawn boxes.
+
+---
 
 
+
+
+## DEC-011: JSON-First Evidence Packages with Renderer-Injected Images
+- **Date**: 2026-09-13
+- **Decision**: Build each incident's evidence package as a self-contained folder `data/incidents/<incident_id>/` holding `metadata.json`, `measurements.json`, `evidence.json` (artifact index) and an optional `masks/` directory; image rendering is supplied as an optional renderer callable so the JSON core runs on any machine with Pillow fully optional.
+- **Context**: Plan section 25 sketches a full dossier (`original/`, `overlays/`, `birdseye/`, `hawkeye/`). Real broadcast footage and multi-camera renders do not exist locally yet, and hard-requiring image libraries would make evidence generation untestable on minimal installs.
+- **Alternatives Considered**: Requiring OpenCV/Pillow up front and writing all image directories; storing everything in one large JSON blob.
+- **Chosen Decision**: JSON core + artifact index + optional renderer-injected PNGs; the image-heavy directories of plan section 25 are deferred until real footage and multi-camera fusion exist.
+- **Why**: A steward can already reconstruct WHY (identity, verdict, per-wheel geometry, homography, confidence, reason) from the JSON alone; images are additive, not structural.
+- **Consequences**: The API can serve evidence without image dependencies; packages stay small and diff-friendly; missing image directories are an explicit, documented gap rather than an accident.
+- **Future Considerations**: Implement the bird's-eye and Hawk-Eye renderers once corner-camera frames are available (the Iteration 9 dashboard loupe will consume them).
+
+---
+
+## DEC-012: /api/vision/* Serves the JSON Incident Store as Source of Truth
+- **Date**: 2026-09-13
+- **Decision**: Expose exactly the five planned endpoints (`GET /api/vision/incidents`, `GET /api/vision/incident/<id>`, `GET /api/vision/incident/<id>/frames`, `GET /api/vision/incident/<id>/evidence`, `POST /api/vision/incident/<id>/decision`) backed by the JSON document store (`data/vision_incidents.json`, `data/steward_decisions.json`), extending DEC-004's "backend as single source of truth" to vision data.
+- **Context**: The steward dashboard (Iteration 9) needs the priority queue, per-incident forensics, frame-scrub data, evidence dossiers, and persistent adjudication.
+- **Alternatives Considered**: Serving evidence packages from a static file mount; embedding steward decisions inside incident records; SQLite.
+- **Chosen Decision**: JSON store + the five endpoints; decisions form an append-only log with "latest wins" folding into each incident response; unknown incidents are 404, invalid adjudications 400; the queue is ranked exactly like `rank_incidents` (priority, then breach depth, then confidence).
+- **Why**: Zero new infrastructure, matches the CSV/JSON ledger philosophy, keeps decision history auditable, and the frontend needs no file-system access.
+- **Consequences**: Concurrent writes are last-writer-wins (acceptable for a single-steward review station); the derived frame list assumes contiguous clusters, which `cluster_incidents` guarantees.
+- **Future Considerations**: File locking if multi-steward editing is introduced; WebSocket push for live queues; serve rendered PNGs from packages via a static route.
+
+---
+
+## DEC-013: Steward Workstation Frontend on /api/vision/* with a Synthetic Demo Harness
+- **Date**: 2026-09-13
+- **Decision**: Rebuild the dashboard (`index.html`, `styles.css`, `app.js`) as the dedicated **Steward Scrutineering Workstation** consuming only the `/api/vision/*` endpoints; add `src/vision/demo.py` + `scripts/seed_vision_demo.py` to generate deterministic synthetic incidents and evidence packages (masks + keyframe) so the UI is verifiable without the Colab SAM service.
+- **Context**: Plan section 26 defines the steward workstation (priority queue, forensic deck, dossier). The vision store is empty until the real pipeline runs against footage, which would leave the UI unverifiable.
+- **Alternatives Considered**: Keeping the Phase 1 violations dashboard as the default view; mocking incident data inside `app.js` (violates DEC-012's backend-as-source-of-truth); requiring the live SAM service for any demo.
+- **Chosen Decision**: The workstation reads the vision API exclusively; the demo harness writes through the SAME store and evidence builder as the real pipeline (no frontend mocks). Static evidence assets (mask PNGs, keyframes) are served by the existing Flask catch-all from the conventional root `/data/incidents/<id>/`.
+- **Why**: The UI is exercised end-to-end against the real API contract; swapping synthetic data for pipeline output requires zero frontend changes.
+- **Consequences**: The Phase 1 violations view is retired from the default page (its API remains untouched); the bird's-eye panel is a measurement-driven schematic until packages carry per-wheel contact polygons; the Hawk-Eye loupe needs mask PNGs to activate.
+- **Future Considerations**: True homography projection panel; `<video>` scrubbing once benchmark clips exist; per-wheel polygon export in `measurements.json`.
+
+---
